@@ -1,0 +1,18 @@
+[
+  {"sku": "WH-10021", "name": "Wiring Harness - Front Door", "uom": "PCS", "category": "Wiring Harness"},
+  {"sku": "WH-10034", "name": "Wiring Harness - Engine Bay", "uom": "PCS", "category": "Wiring Harness"},
+  {"sku": "MR-20011", "name": "Rear View Mirror - LH", "uom": "PCS", "category": "Mirrors"},
+  {"sku": "MR-20012", "name": "Rear View Mirror - RH", "uom": "PCS", "category": "Mirrors"},
+  {"sku": "BP-30005", "name": "Front Bumper Assembly", "uom": "PCS", "category": "Bumpers"},
+  {"sku": "BP-30009", "name": "Rear Bumper Assembly", "uom": "PCS", "category": "Bumpers"},
+  {"sku": "DT-40017", "name": "Door Trim Panel - Front", "uom": "PCS", "category": "Door Trims"},
+  {"sku": "DT-40022", "name": "Door Trim Panel - Rear", "uom": "PCS", "category": "Door Trims"},
+  {"sku": "IP-50003", "name": "Instrument Panel Carrier", "uom": "PCS", "category": "Cockpit"},
+  {"sku": "CL-60014", "name": "Cockpit Module Clip Kit", "uom": "BOX", "category": "Cockpit"},
+  {"sku": "RB-70008", "name": "Rubber Grommet 12 mm", "uom": "BOX", "category": "Small Parts"},
+  {"sku": "CN-80031", "name": "Connector Housing 6-Pin", "uom": "BOX", "category": "Small Parts"},
+  {"sku": "LG-90002", "name": "Tail Lamp Assembly", "uom": "PCS", "category": "Lighting"},
+  {"sku": "HV-11007", "name": "HVAC Duct - Centre", "uom": "PCS", "category": "HVAC"},
+  {"sku": "SP-12019", "name": "Spoiler - Roof", "uom": "PCS", "category": "Exterior"},
+  {"sku": "FS-13004", "name": "Fuse Box Cover", "uom": "PCS", "category": "Small Parts"}
+]

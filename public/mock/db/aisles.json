@@ -1,0 +1,12 @@
+[
+  {"aisleId": "AISLE-001", "warehouseId": "WH-CHN-01", "name": "Main Aisle A", "x": 2150, "y": 250, "width": 100, "height": 700, "direction": "Vertical", "travelType": "Two-way", "travelDirection": "Forward", "color": "#FCD34D"},
+  {"aisleId": "AISLE-002", "warehouseId": "WH-CHN-01", "name": "Aisle A1-1", "x": 750, "y": 550, "width": 1400, "height": 100, "direction": "Horizontal", "travelType": "One-way", "travelDirection": "Forward", "color": "#FCD34D"},
+  {"aisleId": "AISLE-003", "warehouseId": "WH-CHN-01", "name": "Main Aisle B", "x": 2150, "y": 1100, "width": 100, "height": 700, "direction": "Vertical", "travelType": "Two-way", "travelDirection": "Forward", "color": "#FCD34D"},
+  {"aisleId": "AISLE-004", "warehouseId": "WH-CHN-01", "name": "Aisle B1-1", "x": 750, "y": 1400, "width": 1400, "height": 100, "direction": "Horizontal", "travelType": "One-way", "travelDirection": "Forward", "color": "#FCD34D"},
+  {"aisleId": "AISLE-005", "warehouseId": "WH-CHN-01", "name": "Main Aisle C", "x": 3800, "y": 250, "width": 100, "height": 700, "direction": "Vertical", "travelType": "Two-way", "travelDirection": "Forward", "color": "#FCD34D"},
+  {"aisleId": "AISLE-006", "warehouseId": "WH-CHN-01", "name": "Aisle C1-1", "x": 2400, "y": 550, "width": 1400, "height": 100, "direction": "Horizontal", "travelType": "One-way", "travelDirection": "Forward", "color": "#FCD34D"},
+  {"aisleId": "AISLE-007", "warehouseId": "WH-CHN-01", "name": "Main Aisle D", "x": 3800, "y": 1100, "width": 100, "height": 700, "direction": "Vertical", "travelType": "Two-way", "travelDirection": "Forward", "color": "#FCD34D"},
+  {"aisleId": "AISLE-008", "warehouseId": "WH-CHN-01", "name": "Aisle D1-1", "x": 2400, "y": 1400, "width": 1400, "height": 100, "direction": "Horizontal", "travelType": "One-way", "travelDirection": "Forward", "color": "#FCD34D"},
+  {"aisleId": "AISLE-009", "warehouseId": "WH-CHN-01", "name": "Pick Aisle 1", "x": 4150, "y": 400, "width": 300, "height": 50, "direction": "Horizontal", "travelType": "One-way", "travelDirection": "Forward", "color": "#FCD34D"},
+  {"aisleId": "AISLE-010", "warehouseId": "WH-CHN-01", "name": "Pick Aisle 2", "x": 4150, "y": 550, "width": 300, "height": 50, "direction": "Horizontal", "travelType": "One-way", "travelDirection": "Forward", "color": "#FCD34D"}
+]

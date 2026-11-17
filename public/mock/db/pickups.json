@@ -1,0 +1,10 @@
+[
+  {"pickupId": "PICK-261101", "warehouseId": "WH-CHN-01", "orderNo": "SO-452591", "customer": "Maruti Suzuki - Manesar", "status": "Open", "priority": "High", "dueOn": "2026-11-16", "assignedTo": "Arun K"},
+  {"pickupId": "PICK-261102", "warehouseId": "WH-CHN-01", "orderNo": "SO-452389", "customer": "Hyundai - Sriperumbudur", "status": "Open", "priority": "High", "dueOn": "2026-11-16", "assignedTo": "Priya S"},
+  {"pickupId": "PICK-261103", "warehouseId": "WH-CHN-01", "orderNo": "SO-459813", "customer": "Tata Motors - Pune", "status": "In Progress", "priority": "Normal", "dueOn": "2026-11-16", "assignedTo": "Rahul M"},
+  {"pickupId": "PICK-261104", "warehouseId": "WH-CHN-01", "orderNo": "SO-456473", "customer": "Mahindra - Chakan", "status": "In Progress", "priority": "Normal", "dueOn": "2026-11-17", "assignedTo": "Divya R"},
+  {"pickupId": "PICK-261105", "warehouseId": "WH-CHN-01", "orderNo": "SO-452557", "customer": "Renault Nissan - Oragadam", "status": "Completed", "priority": "High", "dueOn": "2026-11-17", "assignedTo": "Suresh P"},
+  {"pickupId": "PICK-261106", "warehouseId": "WH-CHN-01", "orderNo": "SO-452196", "customer": "Kia - Anantapur", "status": "Open", "priority": "High", "dueOn": "2026-11-17", "assignedTo": "Arun K"},
+  {"pickupId": "PICK-261107", "warehouseId": "WH-CHN-01", "orderNo": "SO-458309", "customer": "Maruti Suzuki - Manesar", "status": "In Progress", "priority": "Normal", "dueOn": "2026-11-18", "assignedTo": "Priya S"},
+  {"pickupId": "PICK-261108", "warehouseId": "WH-CHN-01", "orderNo": "SO-457289", "customer": "Hyundai - Sriperumbudur", "status": "Completed", "priority": "High", "dueOn": "2026-11-18", "assignedTo": "Rahul M"}
+]

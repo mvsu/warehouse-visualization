@@ -1,0 +1,3 @@
+[
+  {"warehouseId": "WH-CHN-01", "name": "Chennai Distribution Center", "site": "Chennai", "floorId": "GF", "floorName": "Ground Floor", "canvasWidth": 24400, "canvasHeight": 20000, "gridCellWidth": 50, "gridCellHeight": 50}
+]

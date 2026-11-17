@@ -1,0 +1,5 @@
+[
+  {"zoneId": "Z-IN", "warehouseId": "WH-CHN-01", "code": "Z-IN", "name": "Inbound Zone", "x": 150, "y": 150, "width": 400, "height": 1750},
+  {"zoneId": "Z-ST", "warehouseId": "WH-CHN-01", "code": "Z-ST", "name": "Storage Zone", "x": 650, "y": 150, "width": 3300, "height": 1750},
+  {"zoneId": "Z-OUT", "warehouseId": "WH-CHN-01", "code": "Z-OUT", "name": "Outbound Zone", "x": 4050, "y": 150, "width": 500, "height": 1750}
+]
