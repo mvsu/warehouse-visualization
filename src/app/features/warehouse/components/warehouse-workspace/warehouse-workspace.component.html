@@ -1,0 +1,138 @@
+<app-warehouse-topbar />
+
+<main class="stage">
+  <div
+    class="ruler-corner"
+    data-tip="Warehouse pixel coordinates. Origin (0, 0) is the top-left."
+    data-tip-pos="right"
+  >
+    px
+  </div>
+  <app-horizontal-ruler class="ruler-x" />
+  <app-vertical-ruler class="ruler-y" />
+
+  <div class="canvas-area">
+    <app-warehouse-canvas [cdkContextMenuTriggerFor]="contextMenu" />
+    <app-coordinate-indicator />
+    @if (!store.ready()) {
+      <div class="loading">Opening your warehouse…</div>
+    }
+  </div>
+
+  <app-warehouse-toolbar />
+  @if (tools.layersOpen()) {
+    <app-layer-panel />
+  }
+  <app-properties-panel />
+  @if (!store.editMode()) {
+    <app-view-filters />
+    <app-view-panel />
+  }
+  <app-zoom-controls />
+
+  <div class="toasts" aria-live="polite">
+    @for (toast of toasts(); track toast.id) {
+      <div class="toast" [class]="'toast ' + toast.tone">{{ toast.message }}</div>
+    }
+  </div>
+</main>
+
+<ng-template #contextMenu>
+  <div class="menu" cdkMenu>
+    <button
+      class="menu-item"
+      cdkMenuItem
+      [cdkMenuItemDisabled]="!actions.hasSelection()"
+      (cdkMenuItemTriggered)="actions.copy()"
+    >
+      <app-icon name="copy" [size]="16" /><span class="grow">Copy</span
+      ><span class="hint">Ctrl C</span>
+    </button>
+    <button
+      class="menu-item"
+      cdkMenuItem
+      [cdkMenuItemDisabled]="!store.editMode() || !store.hasClipboard()"
+      (cdkMenuItemTriggered)="actions.paste()"
+    >
+      <app-icon name="paste" [size]="16" /><span class="grow">Paste here</span
+      ><span class="hint">Ctrl V</span>
+    </button>
+    <button
+      class="menu-item"
+      cdkMenuItem
+      [cdkMenuItemDisabled]="!actions.canEdit()"
+      (cdkMenuItemTriggered)="actions.duplicate()"
+    >
+      <app-icon name="duplicate" [size]="16" /><span class="grow">Duplicate</span
+      ><span class="hint">Ctrl D</span>
+    </button>
+    <div class="divider-h"></div>
+    <button
+      class="menu-item"
+      cdkMenuItem
+      [cdkMenuItemDisabled]="!actions.canGroup()"
+      (cdkMenuItemTriggered)="actions.group()"
+    >
+      <app-icon name="group" [size]="16" /><span class="grow">Group</span
+      ><span class="hint">Ctrl G</span>
+    </button>
+    <button
+      class="menu-item"
+      cdkMenuItem
+      [cdkMenuItemDisabled]="!actions.canUngroup()"
+      (cdkMenuItemTriggered)="actions.ungroup()"
+    >
+      <app-icon name="ungroup" [size]="16" /><span class="grow">Ungroup</span
+      ><span class="hint">Ctrl Shift G</span>
+    </button>
+    <button
+      class="menu-item"
+      cdkMenuItem
+      [cdkMenuItemDisabled]="!actions.canEdit()"
+      (cdkMenuItemTriggered)="actions.toggleLock()"
+    >
+      <app-icon [name]="actions.allLocked() ? 'unlock' : 'lock'" [size]="16" /><span class="grow">{{
+        actions.allLocked() ? 'Unlock' : 'Lock'
+      }}</span
+      ><span class="hint">Ctrl L</span>
+    </button>
+    <div class="divider-h"></div>
+    <button
+      class="menu-item"
+      cdkMenuItem
+      [cdkMenuItemDisabled]="!actions.canEdit()"
+      (cdkMenuItemTriggered)="actions.bringToFront()"
+    >
+      <app-icon name="front" [size]="16" /><span class="grow">Bring to front</span
+      ><span class="hint">]</span>
+    </button>
+    <button
+      class="menu-item"
+      cdkMenuItem
+      [cdkMenuItemDisabled]="!actions.canEdit()"
+      (cdkMenuItemTriggered)="actions.sendToBack()"
+    >
+      <app-icon name="back" [size]="16" /><span class="grow">Send to back</span
+      ><span class="hint">[</span>
+    </button>
+    <div class="divider-h"></div>
+    <button class="menu-item" cdkMenuItem (cdkMenuItemTriggered)="actions.selectAll()">
+      <app-icon name="select" [size]="16" /><span class="grow">Select all</span
+      ><span class="hint">Ctrl A</span>
+    </button>
+    <button class="menu-item" cdkMenuItem (cdkMenuItemTriggered)="actions.fitSelection()">
+      <app-icon name="fit-screen" [size]="16" /><span class="grow">Zoom to fit</span
+      ><span class="hint">Shift 1</span>
+    </button>
+    <div class="divider-h"></div>
+    <button
+      class="menu-item danger"
+      cdkMenuItem
+      [cdkMenuItemDisabled]="!actions.canEdit()"
+      (cdkMenuItemTriggered)="actions.delete()"
+    >
+      <app-icon name="trash" [size]="16" /><span class="grow">Delete</span
+      ><span class="hint">Del</span>
+    </button>
+  </div>
+</ng-template>

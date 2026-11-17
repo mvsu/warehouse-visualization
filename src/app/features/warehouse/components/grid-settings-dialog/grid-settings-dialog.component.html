@@ -1,0 +1,102 @@
+<form class="dialog surface" [formGroup]="form" (ngSubmit)="apply()">
+  <header>
+    <span class="title-icon"><app-icon name="grid" [size]="18" /></span>
+    <div>
+      <h2>Grid settings</h2>
+      <p>Define one logical warehouse cell. Zoom only changes its screen size.</p>
+    </div>
+    <button type="button" class="icon-btn" aria-label="Close" (click)="ref.close()">
+      <app-icon name="close" [size]="17" />
+    </button>
+  </header>
+
+  <div class="body">
+    <section>
+      <span class="section-title">Grid cell dimensions</span>
+      <div class="fields">
+        <label>
+          <span>Cell width <small>px</small></span>
+          <input
+            class="input"
+            type="number"
+            min="1"
+            [max]="maxWidth"
+            step="1"
+            formControlName="cellWidth"
+          />
+        </label>
+        <label>
+          <span>Cell height <small>px</small></span>
+          <input
+            class="input"
+            type="number"
+            min="1"
+            [max]="maxHeight"
+            step="1"
+            formControlName="cellHeight"
+          />
+        </label>
+      </div>
+      <p class="note">
+        No smaller subdivisions are drawn. This cell is the shared placement unit for the layout.
+      </p>
+    </section>
+
+    <section>
+      <span class="section-title">Warehouse coordinate range</span>
+      <div class="fields">
+        <label>
+          <span>Horizontal range <small>px</small></span>
+          <input
+            class="input"
+            type="number"
+            min="2000"
+            [max]="maxWidth"
+            step="100"
+            formControlName="warehouseWidth"
+          />
+        </label>
+        <label>
+          <span>Vertical range <small>px</small></span>
+          <input
+            class="input"
+            type="number"
+            min="2000"
+            [max]="maxHeight"
+            step="100"
+            formControlName="warehouseHeight"
+          />
+        </label>
+      </div>
+      <div class="range-summary">
+        <span>{{ summary().columns }} columns</span>
+        <span>{{ summary().rows }} rows</span>
+        <span>Maximum 20,000 × 20,000 px</span>
+      </div>
+    </section>
+
+    <section class="switches">
+      <label class="switch-row">
+        <span><strong>Show grid</strong><small>Display the configured cell boundaries</small></span>
+        <input type="checkbox" formControlName="visible" />
+      </label>
+      <label class="switch-row">
+        <span
+          ><strong>Snap to grid</strong
+          ><small>Align object boundaries to configured cells</small></span
+        >
+        <input type="checkbox" formControlName="snap" />
+      </label>
+    </section>
+
+    <p class="warning">
+      Existing objects will keep their grid-cell position and occupied cell count. Their pixel
+      coordinates and dimensions will update to fit the new grid.
+    </p>
+  </div>
+
+  <footer>
+    <button type="button" class="btn" (click)="ref.close()">Cancel</button>
+    <button type="submit" class="btn btn-primary">Apply grid</button>
+  </footer>
+</form>

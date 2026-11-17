@@ -1,0 +1,192 @@
+@if (visible()) {
+  <aside class="slider surface" aria-label="Warehouse information">
+    <header>
+      <strong>{{ title() }}</strong>
+      <app-toolbar-button icon="close" label="Close" [size]="16" tipPosition="bottom-end" (pressed)="close()" />
+    </header>
+
+    <div class="body">
+      <!-- ============================== selection on the canvas ============================== -->
+      @if (cellStock(); as s) {
+        <section class="card">
+          <div class="row">
+            <div class="stack">
+              <strong>{{ s.code }}</strong>
+              <span>{{ single()?.name }} · bay {{ s.bay }} · level {{ s.level }}</span>
+            </div>
+            <span class="badge" [style.background]="s.color">{{ s.status }}</span>
+          </div>
+          @if (view.selectedItemInCell() !== null && view.selectedItem(); as item) {
+            <p class="callout">
+              <b>{{ view.selectedItemInCell() }} {{ item.uom }}</b> of {{ item.name }} in this level
+            </p>
+          }
+          <div class="row muted">
+            <span>Total quantity</span>
+            <b>{{ s.quantity }}@if (s.capacity) { / {{ s.capacity }} }</b>
+          </div>
+          @for (item of s.items; track item.sku) {
+            <div class="line" [class.match]="item.sku === view.selectedSku()">
+              <div class="row">
+                <strong>{{ item.name }}</strong>
+                <b>{{ item.quantity }} {{ item.uom }}</b>
+              </div>
+              <span>{{ item.sku }}@if (item.batch) { · Batch {{ item.batch }} }@if (item.grnNo) { · {{ item.grnNo }} }</span>
+            </div>
+          } @empty {
+            <p class="none">This level is empty.</p>
+          }
+        </section>
+      } @else {
+@if (single(); as o) {
+        @if (view.selectionSummary(); as sum) {
+          <section class="card">
+            <div class="stack">
+              <strong>{{ o.name }}</strong>
+              <span>{{ o.type === 'rack' ? 'Rack' : 'Area' }} · {{ sum.racks }} rack(s) · {{ sum.levels }} levels</span>
+            </div>
+            <div class="stats">
+              <div><i [style.background]="statusColor('In Stock')"></i><b>{{ sum.inStock }}</b><span>In stock</span></div>
+              <div><i [style.background]="statusColor('Low Stock')"></i><b>{{ sum.lowStock }}</b><span>Low stock</span></div>
+              <div><i [style.background]="statusColor('Empty')"></i><b>{{ sum.empty }}</b><span>Empty</span></div>
+            </div>
+            @if (o.type === 'rack') {
+              <p class="none">Click a level of this rack to see its items.</p>
+            }
+          </section>
+        }
+      }
+}
+
+      <!-- ============================== items ============================== -->
+      @if (view.tab() === 'items') {
+        <input class="input" type="search" placeholder="Search item or SKU" [value]="view.search()" (input)="search($event)" />
+        @if (view.selectedItem(); as item) {
+          <section class="card">
+            <div class="row">
+              <div class="stack">
+                <strong>{{ item.name }}</strong>
+                <span>{{ item.sku }} · {{ item.quantity }} {{ item.uom }} in {{ item.locations }} level(s)</span>
+              </div>
+              <button type="button" class="link" (click)="view.toggleItem(item.sku)">Clear</button>
+            </div>
+            <ul class="locations">
+              @for (ref of view.itemLocations(); track ref.cell.id) {
+                <li>
+                  <button type="button" [class.active]="ref.cell.id === cell()?.id" (click)="view.selectCell(ref.rack, ref.cell)">
+                    <span>{{ ref.rack.name }} · bay {{ ref.cell.column }} · level {{ ref.cell.row }}</span>
+                    <b>{{ ref.quantity }}</b>
+                  </button>
+                </li>
+              }
+            </ul>
+          </section>
+        }
+        <ul class="list">
+          @for (item of view.items(); track item.sku) {
+            <li>
+              <button type="button" [class.active]="item.sku === view.selectedSku()" (click)="view.toggleItem(item.sku)">
+                <div class="row">
+                  <strong>{{ item.name }}</strong>
+                  <b>{{ item.quantity }} {{ item.uom }}</b>
+                </div>
+                <div class="row muted">
+                  <span>{{ item.sku }}@if (item.category) { · {{ item.category }} }</span>
+                  <span>
+                    {{ item.locations }} level(s)
+                    @if (item.lowLocations) {
+                      <em class="low">{{ item.lowLocations }} low</em>
+                    }
+                  </span>
+                </div>
+              </button>
+            </li>
+          } @empty {
+            <li class="none">No items found.</li>
+          }
+        </ul>
+      }
+
+      <!-- ============================== pickup ============================== -->
+      @if (view.tab() === 'pickup') {
+        <ul class="list">
+          @for (pickup of view.pickups(); track pickup.id) {
+            <li>
+              <button type="button" [class.active]="pickup.id === view.selectedPickupId()" (click)="view.togglePickup(pickup.id)">
+                <div class="row">
+                  <strong>{{ pickup.id }}</strong>
+                  <span class="tag" [attr.data-status]="pickup.status">{{ pickup.status }}</span>
+                </div>
+                <div class="row muted">
+                  <span>{{ pickup.orderNo }}@if (pickup.customer) { · {{ pickup.customer }} }</span>
+                  <span>{{ pickup.lines.length }} line(s)</span>
+                </div>
+                @if (pickup.dueOn || pickup.assignedTo) {
+                  <div class="row muted">
+                    <span>@if (pickup.dueOn) { Due {{ pickup.dueOn }} }</span>
+                    <span>{{ pickup.assignedTo }}</span>
+                  </div>
+                }
+              </button>
+              @if (pickup.id === view.selectedPickupId()) {
+                <ul class="locations">
+                  @for (line of pickup.lines; track $index) {
+                    <li>
+                      <button type="button" [class.active]="view.resolve(line.locationCode)?.cell?.id === cell()?.id" (click)="open(line.locationCode)">
+                        <span>
+                          <strong>{{ line.name || line.sku }}</strong><br />
+                          {{ where(line.locationCode) }}
+                        </span>
+                        <b>{{ line.quantity }} {{ line.uom }}@if (line.picked) { ✓ }</b>
+                      </button>
+                    </li>
+                  }
+                </ul>
+              }
+            </li>
+          } @empty {
+            <li class="none">This warehouse has no pick lists in its data.</li>
+          }
+        </ul>
+      }
+
+      <!-- ============================== activity ============================== -->
+      @if (view.tab() === 'activity') {
+        <ul class="list">
+          @for (entry of view.activity(); track entry.id) {
+            <li>
+              <button type="button" [class.active]="entry.id === view.selectedActivityId()" (click)="view.toggleActivity(entry.id); open(entry.locationCode)">
+                <div class="row">
+                  <strong>{{ entry.type }}</strong>
+                  <span class="muted">{{ entry.time }}</span>
+                </div>
+                <div class="row">
+                  <span>{{ entry.name || entry.sku }}</span>
+                  <b>{{ entry.quantity }} {{ entry.uom }}</b>
+                </div>
+                <div class="row muted">
+                  <span>{{ where(entry.locationCode) }}</span>
+                  <span>{{ entry.user }}</span>
+                </div>
+                @if (entry.fromLocationCode || entry.reference) {
+                  <div class="row muted">
+                    <span>@if (entry.fromLocationCode) { From {{ where(entry.fromLocationCode) }} }</span>
+                    <span>{{ entry.reference }}</span>
+                  </div>
+                }
+              </button>
+            </li>
+          } @empty {
+            <li class="none">This warehouse has no activity in its data.</li>
+          }
+        </ul>
+      }
+    </div>
+
+    <footer>
+      @for (entry of legend; track entry[0]) {
+        <span><i [style.background]="entry[1]"></i>{{ entry[0] }}</span>
+      }
+    </footer>
+  </aside>
+}

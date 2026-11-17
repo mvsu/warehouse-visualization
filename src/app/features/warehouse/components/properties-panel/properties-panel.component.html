@@ -1,0 +1,384 @@
+@if (visible()) {
+  <aside
+    class="inspector surface"
+    [class.collapsed]="tools.inspectorCollapsed()"
+    aria-label="Properties"
+  >
+    <header>
+      <span class="type-icon"><app-icon [name]="header().icon" [size]="16" /></span>
+      <div class="heading">
+        <strong>{{ header().title }}</strong>
+        <span>{{ header().subtitle }}</span>
+      </div>
+      <app-toolbar-button
+        icon="collapse"
+        [label]="tools.inspectorCollapsed() ? 'Expand panel' : 'Collapse panel'"
+        [size]="16"
+        tipPosition="bottom-end"
+        [active]="tools.inspectorCollapsed()"
+        (pressed)="tools.inspectorCollapsed.set(!tools.inspectorCollapsed())"
+      />
+      <app-toolbar-button
+        icon="close"
+        label="Close"
+        [size]="16"
+        tipPosition="bottom-end"
+        (pressed)="close()"
+      />
+    </header>
+
+    @if (!tools.inspectorCollapsed()) {
+      <div class="body">
+        <!-- ============================== creation settings ============================== -->
+        @if (creationType(); as type) {
+          @if (pendingRack(); as rack) {
+            <section class="block">
+              <app-rack-preview [rack]="rack" />
+              <dl class="facts">
+                <div>
+                  <dt>Rack</dt>
+                  <dd>{{ rack.name }}</dd>
+                </div>
+                <div>
+                  <dt>Rack ID</dt>
+                  <dd>{{ rack.rackId }}</dd>
+                </div>
+                <div>
+                  <dt>Grid</dt>
+                  <dd>{{ rack.rows }} levels × {{ rack.columns }} columns</dd>
+                </div>
+                <div>
+                  <dt>Footprint</dt>
+                  <dd>{{ rack.width }} × {{ rack.height }} px</dd>
+                </div>
+              </dl>
+              <button type="button" class="btn btn-block" (click)="tools.openRackDialog()">
+                Change configuration
+              </button>
+            </section>
+          } @else {
+@if (creationState(); as state) {
+            <form class="block grid" [formGroup]="state.form">
+              @for (f of state.fields; track f.key) {
+                <app-property-field
+                  [class.half]="isHalf(f)"
+                  [field]="f"
+                  [control]="state.form.controls[f.key]"
+                  [value]="creationValues()[f.key]"
+                />
+              }
+            </form>
+          }
+}
+          <p class="hint">
+            <app-icon name="info" [size]="14" />
+            <span>{{
+              header().icon === 'rack'
+                ? 'Click on the canvas to place the fixed-size rack.'
+                : creationHint(type)
+            }}</span>
+          </p>
+        } @else {
+@if (singleState(); as state) {
+          <!-- ============================== single object ============================== -->
+          @if (!editable()) {
+            <p class="banner">
+              <span>View mode. Properties are read-only.</span>
+              <button type="button" class="link" (click)="store.editMode.set(true)">
+                Edit warehouse
+              </button>
+            </p>
+          } @else if (single()?.locked) {
+            <p class="banner">
+              <span>This object is locked.</span>
+              <button type="button" class="link" (click)="actions.toggleLock()">Unlock</button>
+            </p>
+          }
+          <form [formGroup]="state.form" (focusout)="resync()">
+            @for (section of state.sections; track section.title) {
+              <section class="section">
+                <button
+                  type="button"
+                  class="section-head"
+                  [attr.aria-expanded]="!isCollapsed(section.title)"
+                  (click)="toggleSection(section.title)"
+                >
+                  <app-icon
+                    [name]="isCollapsed(section.title) ? 'chevron-right' : 'chevron-down'"
+                    [size]="14"
+                  />
+                  <span>{{ section.title }}</span>
+                </button>
+                @if (!isCollapsed(section.title)) {
+                  @switch (section.kind) {
+                    @case ('preview') {
+                      @if (rackPreview(); as rack) {
+                        <div class="block"><app-rack-preview [rack]="rack" /></div>
+                      }
+                    }
+                    @case ('stock') {
+                      <div class="block stock">
+                        <ul class="legend">
+                          @for (entry of stockLegend; track entry[0]) {
+                            <li><i [style.background]="entry[1]"></i>{{ entry[0] }}</li>
+                          }
+                        </ul>
+                        @if (stock(); as s) {
+                          <div class="stock-head">
+                            <div>
+                              <strong>{{ s.code }}</strong>
+                              <span>Bay {{ s.bay }} · Level {{ s.level }}</span>
+                            </div>
+                            <span class="badge" [style.background]="s.color">{{ s.status }}</span>
+                          </div>
+                          <dl class="facts">
+                            <div>
+                              <dt>Quantity</dt>
+                              <dd>
+                                {{ s.quantity }}
+                                @if (s.capacity) {
+                                  / {{ s.capacity }}
+                                }
+                              </dd>
+                            </div>
+                            <div>
+                              <dt>Items</dt>
+                              <dd>{{ s.items.length }}</dd>
+                            </div>
+                          </dl>
+                          @for (item of s.items; track item.sku) {
+                            <article class="item">
+                              <header>
+                                <strong>{{ item.name }}</strong>
+                                <b>{{ item.quantity }} {{ item.uom }}</b>
+                              </header>
+                              <span>
+                                {{ item.sku }}
+                                @if (item.batch) {
+                                  · Batch {{ item.batch }}
+                                }
+                              </span>
+                              <span>
+                                @if (item.grnNo) {
+                                  {{ item.grnNo }}
+                                }
+                                @if (item.receivedOn) {
+                                  · {{ item.receivedOn }}
+                                }
+                                @if (item.minQuantity) {
+                                  · Min {{ item.minQuantity }}
+                                }
+                              </span>
+                            </article>
+                          } @empty {
+                            <p class="none">This level is empty.</p>
+                          }
+                        } @else {
+                          <p class="none">Click a level of this rack to see the items stored in it.</p>
+                        }
+                      </div>
+                    }
+                    @case ('cell') {
+                      @if (cellState(); as cs) {
+                        <div class="block grid" [formGroup]="cs.form">
+                          <div class="cell-id">
+                            {{ cs.cellId }}
+                            <span>
+                              Level {{ cell()?.row }}, column {{ cell()?.column }} · X
+                              {{ cellPosition()?.x }}, Y {{ cellPosition()?.y }} px
+                            </span>
+                          </div>
+                          @for (f of cellFields; track f.key) {
+                            <app-property-field
+                              [class.half]="true"
+                              [field]="f"
+                              [control]="cs.form.controls[f.key]"
+                            />
+                          }
+                        </div>
+                      } @else {
+                        <p class="empty">
+                          Click a cell of this rack on the canvas to edit its position ID, status
+                          and contents.
+                        </p>
+                      }
+                    }
+                    @default {
+                      <div class="block grid">
+                        @for (f of section.fields; track f.key) {
+                          <app-property-field
+                            [class.half]="isHalf(f)"
+                            [field]="f"
+                            [control]="state.form.controls[f.key] ?? null"
+                            [value]="values()[f.key]"
+                            [options]="f.key === 'layerId' ? layerOptions() : null"
+                          />
+                        }
+                      </div>
+                    }
+                  }
+                }
+              </section>
+            }
+          </form>
+          <footer class="actions">
+            <button
+              type="button"
+              class="btn"
+              [disabled]="!editable()"
+              (click)="actions.toggleLock()"
+            >
+              <app-icon [name]="actions.allLocked() ? 'unlock' : 'lock'" [size]="15" />
+              {{ actions.allLocked() ? 'Unlock' : 'Lock' }}
+            </button>
+            <button
+              type="button"
+              class="btn"
+              [disabled]="!editable()"
+              (click)="actions.duplicate()"
+            >
+              <app-icon name="duplicate" [size]="15" /> Duplicate
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger"
+              [disabled]="!editable()"
+              (click)="actions.delete()"
+            >
+              <app-icon name="trash" [size]="15" /> Delete
+            </button>
+          </footer>
+        } @else {
+          <!-- ============================== multi selection ============================== -->
+          @if (!editable()) {
+            <p class="banner">
+              <span>View mode. Properties are read-only.</span>
+              <button type="button" class="link" (click)="store.editMode.set(true)">
+                Edit warehouse
+              </button>
+            </p>
+          }
+          <section class="section">
+            <div class="section-head static">Align and distribute</div>
+            <div class="block align-row">
+              <app-toolbar-button
+                icon="align-left"
+                label="Align left"
+                [disabled]="!editable()"
+                (pressed)="align('left')"
+              />
+              <app-toolbar-button
+                icon="align-center-h"
+                label="Align horizontal centres"
+                [disabled]="!editable()"
+                (pressed)="align('center-h')"
+              />
+              <app-toolbar-button
+                icon="align-right"
+                label="Align right"
+                [disabled]="!editable()"
+                (pressed)="align('right')"
+              />
+              <app-toolbar-button
+                icon="align-top"
+                label="Align top"
+                [disabled]="!editable()"
+                (pressed)="align('top')"
+              />
+              <app-toolbar-button
+                icon="align-center-v"
+                label="Align vertical centres"
+                [disabled]="!editable()"
+                (pressed)="align('center-v')"
+              />
+              <app-toolbar-button
+                icon="align-bottom"
+                label="Align bottom"
+                [disabled]="!editable()"
+                (pressed)="align('bottom')"
+              />
+              <app-toolbar-button
+                icon="distribute-h"
+                label="Distribute horizontally"
+                [disabled]="!editable() || count() < 3"
+                tipPosition="bottom-end"
+                (pressed)="distribute('h')"
+              />
+              <app-toolbar-button
+                icon="distribute-v"
+                label="Distribute vertically"
+                [disabled]="!editable() || count() < 3"
+                tipPosition="bottom-end"
+                (pressed)="distribute('v')"
+              />
+            </div>
+          </section>
+          <section class="section">
+            <div class="section-head static">Shared properties</div>
+            <form class="block grid" [formGroup]="multiForm">
+              @for (f of multiFields; track f.key) {
+                <app-property-field
+                  [class.half]="isHalf(f)"
+                  [field]="f"
+                  [control]="multiForm.controls[f.key]"
+                  [value]="multiValues()[f.key]"
+                  [options]="f.key === 'layerId' ? multiLayerOptions() : null"
+                />
+              }
+            </form>
+            <dl class="facts block">
+              <div>
+                <dt>Selection size</dt>
+                <dd>{{ multiValues()['width'] }} × {{ multiValues()['height'] }} px</dd>
+              </div>
+            </dl>
+          </section>
+          <footer class="actions">
+            <button
+              type="button"
+              class="btn"
+              [disabled]="!actions.canGroup()"
+              (click)="actions.group()"
+            >
+              <app-icon name="group" [size]="15" /> Group
+            </button>
+            <button
+              type="button"
+              class="btn"
+              [disabled]="!actions.canUngroup()"
+              (click)="actions.ungroup()"
+            >
+              <app-icon name="ungroup" [size]="15" /> Ungroup
+            </button>
+            <button
+              type="button"
+              class="btn"
+              [disabled]="!editable()"
+              (click)="actions.toggleLock()"
+            >
+              <app-icon [name]="actions.allLocked() ? 'unlock' : 'lock'" [size]="15" />
+              {{ actions.allLocked() ? 'Unlock' : 'Lock' }}
+            </button>
+            <button
+              type="button"
+              class="btn"
+              [disabled]="!editable()"
+              (click)="actions.duplicate()"
+            >
+              <app-icon name="duplicate" [size]="15" /> Duplicate
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger"
+              [disabled]="!editable()"
+              (click)="actions.delete()"
+            >
+              <app-icon name="trash" [size]="15" /> Delete
+            </button>
+          </footer>
+        }
+}
+      </div>
+    }
+  </aside>
+}

@@ -1,0 +1,122 @@
+<div class="dialog surface">
+  <header>
+    <h2>Add rack</h2>
+    <button type="button" class="icon-btn" aria-label="Close" (click)="ref.close()">
+      <app-icon name="close" [size]="16" />
+    </button>
+  </header>
+
+  <form class="body" [formGroup]="form" (ngSubmit)="submitCreate()">
+    <div class="fields">
+      <label class="wide" [class.error]="invalid('name')">
+        <span>Rack name</span>
+        <input class="input" formControlName="name" autocomplete="off" />
+      </label>
+      <label [class.error]="invalid('rackId') || idTaken()">
+        <span>Rack ID</span>
+        <input class="input" formControlName="rackId" autocomplete="off" spellcheck="false" />
+        @if (idTaken()) {
+          <em>This ID is already on the canvas.</em>
+        }
+      </label>
+      <label>
+        <span>Zone <small>optional</small></span>
+        <select class="input" formControlName="zoneCode" (change)="onZoneChange()">
+          <option value="">No zone</option>
+          @for (zone of zones(); track zone.code) {
+            <option [value]="zone.code">{{ zone.name }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        <span>Area <small>optional</small></span>
+        <select class="input" formControlName="areaCode" (change)="onAreaChange()">
+          <option value="">No area</option>
+          @for (area of areaOptions(); track area.code) {
+            <option [value]="area.code">{{ area.name }}</option>
+          }
+        </select>
+      </label>
+      <label [class.error]="invalid('columns')">
+        <span>Number of bays</span>
+        <input
+          class="input"
+          type="number"
+          min="1"
+          [max]="maxColumns"
+          step="1"
+          formControlName="columns"
+        />
+      </label>
+      <label [class.error]="invalid('levels')">
+        <span>Levels per bay</span>
+        <input
+          class="input"
+          type="number"
+          min="1"
+          [max]="maxRows"
+          step="1"
+          formControlName="levels"
+        />
+      </label>
+      <label>
+        <span>Rack orientation</span>
+        <select class="input" formControlName="orientation">
+          <option value="Horizontal">Horizontal</option>
+          <option value="Vertical">Vertical (rotated 90°)</option>
+        </select>
+      </label>
+      <label>
+        <span>Rack color</span>
+        <app-color-picker [control]="form.controls.color" [value]="color()" label="Rack color" />
+      </label>
+      <label class="wide">
+        <span>Rack label <small>shown above the rack instead of its name</small></span>
+        <input class="input" formControlName="label" autocomplete="off" />
+      </label>
+    </div>
+
+    <aside class="side">
+      <span class="side-title">Live preview</span>
+      <app-rack-preview [rack]="preview()" />
+      <dl>
+        <div>
+          <dt>Cells</dt>
+          <dd>
+            {{ preview().columns }} bays × {{ preview().rows }} levels = {{ summary().cells }}
+          </dd>
+        </div>
+        <div>
+          <dt>Cell size</dt>
+          <dd>{{ summary().cellWidth }} × {{ summary().cellHeight }} px</dd>
+        </div>
+        <div>
+          <dt>Total size</dt>
+          <dd [class.bad]="!summary().fits">{{ preview().width }} × {{ preview().height }} px</dd>
+        </div>
+        <div>
+          <dt>First cell</dt>
+          <dd class="mono">{{ summary().firstId }}</dd>
+        </div>
+        <div>
+          <dt>Last cell</dt>
+          <dd class="mono">{{ summary().lastId }}</dd>
+        </div>
+      </dl>
+      @if (!summary().fits) {
+        <p class="warn">
+          The generated rack exceeds the configured warehouse range. Reduce its bays or levels,
+          or change the warehouse grid settings.
+        </p>
+      } @else {
+        <p class="note">Each rack cell occupies exactly one configured warehouse grid cell.</p>
+      }
+    </aside>
+
+    <footer>
+      <span class="hint">After this step, click on the canvas to place the rack.</span>
+      <button type="button" class="btn" (click)="ref.close()">Cancel</button>
+      <button type="submit" class="btn btn-primary">Place rack</button>
+    </footer>
+  </form>
+</div>

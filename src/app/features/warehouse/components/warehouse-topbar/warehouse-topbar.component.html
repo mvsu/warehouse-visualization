@@ -1,0 +1,231 @@
+<header class="topbar">
+  <div class="brand">
+    <span class="logo"><app-icon name="logo" [size]="18" /></span>
+    <span class="product">Warehouse Designer</span>
+  </div>
+  <span class="divider-v"></span>
+
+  <div class="doc">
+    @if (renaming()) {
+      <input
+        #nameInput
+        class="input name-input"
+        aria-label="Warehouse name"
+        maxlength="80"
+        [value]="store.name()"
+        (keydown.enter)="commitRename(nameInput.value)"
+        (keydown.escape)="renaming.set(false)"
+        (blur)="commitRename(nameInput.value)"
+      />
+    } @else {
+      <button type="button" class="name" data-tip="Rename warehouse" (click)="startRename()">
+        {{ store.name() }}
+      </button>
+    }
+    <button
+      type="button"
+      class="icon-btn"
+      aria-label="Warehouses"
+      data-tip="Switch or manage warehouses"
+      [cdkMenuTriggerFor]="warehouseMenu"
+    >
+      <app-icon name="chevron-down" [size]="16" />
+    </button>
+    <span class="status" [class]="'status ' + store.saveStatus()" role="status">
+      <span class="dot"></span>{{ statusLabel() }}
+    </span>
+  </div>
+
+  <span class="spacer"></span>
+
+  <div class="cluster">
+    <app-toolbar-button
+      icon="undo"
+      label="Undo"
+      shortcut="Ctrl Z"
+      [disabled]="!store.canUndo()"
+      (pressed)="actions.undo()"
+    />
+    <app-toolbar-button
+      icon="redo"
+      label="Redo"
+      shortcut="Ctrl Shift Z"
+      [disabled]="!store.canRedo()"
+      (pressed)="actions.redo()"
+    />
+    <app-toolbar-button
+      icon="save"
+      label="Save"
+      text="Save"
+      shortcut="Ctrl S"
+      [size]="16"
+      (pressed)="actions.save()"
+    />
+  </div>
+  <span class="divider-v"></span>
+  <div class="cluster">
+    <app-toolbar-button
+      icon="grid"
+      label="Grid settings"
+      text="Grid"
+      [size]="16"
+      (pressed)="openGridSettings()"
+    />
+    <app-toolbar-button
+      icon="import"
+      label="Import layout"
+      text="Import"
+      [size]="16"
+      [cdkMenuTriggerFor]="importMenu"
+    />
+    <app-toolbar-button
+      icon="export"
+      label="Export layout"
+      text="Export"
+      [size]="16"
+      [cdkMenuTriggerFor]="exportMenu"
+    />
+  </div>
+  <span class="divider-v"></span>
+
+  <div class="segmented" role="group" aria-label="Mode">
+    <button
+      type="button"
+      [class.active]="!store.editMode()"
+      [attr.aria-pressed]="!store.editMode()"
+      (click)="setMode(false)"
+    >
+      <app-icon name="view" [size]="15" /> View
+    </button>
+    <button
+      type="button"
+      [class.active]="store.editMode()"
+      [attr.aria-pressed]="store.editMode()"
+      (click)="setMode(true)"
+    >
+      <app-icon name="edit" [size]="15" /> Edit
+    </button>
+  </div>
+
+  @if (store.editMode()) {
+    <button type="button" class="btn" (click)="setMode(false)">
+      <app-icon name="check" [size]="16" /> Done editing
+    </button>
+  } @else {
+    <button type="button" class="btn btn-primary" (click)="setMode(true)">
+      <app-icon name="edit" [size]="16" /> Edit Warehouse
+    </button>
+  }
+  <button type="button" class="btn" (click)="actions.share()">
+    <app-icon name="share" [size]="16" /> Share
+  </button>
+  <button
+    type="button"
+    class="avatar"
+    aria-label="User profile"
+    data-tip="Sivakumar · Designer"
+    data-tip-pos="bottom-end"
+    [cdkMenuTriggerFor]="profileMenu"
+  >
+    S
+  </button>
+</header>
+
+<input
+  #jsonInput
+  type="file"
+  hidden
+  accept=".json,application/json"
+  (change)="onFile('json', $event)"
+/>
+<input #imageInput type="file" hidden [accept]="imageAccept()" (change)="onFile('image', $event)" />
+
+<ng-template #warehouseMenu>
+  <div class="menu wide" cdkMenu>
+    <div class="menu-label">Warehouses saved in this browser</div>
+    @for (layout of store.layouts(); track layout.id) {
+      <div class="layout-row">
+        <button class="menu-item" cdkMenuItem (cdkMenuItemTriggered)="store.openLayout(layout.id)">
+          <app-icon [name]="layout.id === store.layoutId() ? 'check' : 'folder'" [size]="16" />
+          <span class="grow">{{ layout.name }}</span>
+          <span class="hint"
+            >{{ layout.objectCount }} objects · {{ layout.updatedAt | date: 'd MMM, HH:mm' }}</span
+          >
+        </button>
+        <button
+          class="icon-btn"
+          cdkMenuItem
+          [attr.aria-label]="'Delete ' + layout.name"
+          (cdkMenuItemTriggered)="actions.deleteLayout(layout.id, layout.name)"
+        >
+          <app-icon name="trash" [size]="15" />
+        </button>
+      </div>
+    }
+    <div class="divider-h"></div>
+    <button class="menu-item" cdkMenuItem (cdkMenuItemTriggered)="newWarehouse()">
+      <app-icon name="file-plus" [size]="16" /><span class="grow">Create warehouse</span>
+    </button>
+    <button class="menu-item" cdkMenuItem (cdkMenuItemTriggered)="startRename()">
+      <app-icon name="edit" [size]="16" /><span class="grow">Rename this warehouse</span>
+    </button>
+    <button class="menu-item" cdkMenuItem (cdkMenuItemTriggered)="store.duplicateLayout()">
+      <app-icon name="duplicate" [size]="16" /><span class="grow">Duplicate this layout</span>
+    </button>
+    <button
+      class="menu-item danger"
+      cdkMenuItem
+      (cdkMenuItemTriggered)="actions.deleteLayout(store.layoutId(), store.name())"
+    >
+      <app-icon name="trash" [size]="16" /><span class="grow">Delete this layout</span>
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #importMenu>
+  <div class="menu" cdkMenu>
+    <button class="menu-item" cdkMenuItem (cdkMenuItemTriggered)="pickFile('json')">
+      <app-icon name="file-json" [size]="16" /><span class="grow">Layout JSON</span
+      ><span class="hint">opens as a new warehouse</span>
+    </button>
+    <button class="menu-item" cdkMenuItem (cdkMenuItemTriggered)="pickFile('svg')">
+      <app-icon name="file-image" [size]="16" /><span class="grow">SVG drawing</span
+      ><span class="hint">as background</span>
+    </button>
+    <button class="menu-item" cdkMenuItem (cdkMenuItemTriggered)="pickFile('image')">
+      <app-icon name="image" [size]="16" /><span class="grow">Floor-plan image</span
+      ><span class="hint">PNG, JPG, WebP</span>
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #exportMenu>
+  <div class="menu" cdkMenu>
+    <button class="menu-item" cdkMenuItem (cdkMenuItemTriggered)="actions.export('png')">
+      <app-icon name="file-image" [size]="16" /><span class="grow">PNG image</span>
+    </button>
+    <button class="menu-item" cdkMenuItem (cdkMenuItemTriggered)="actions.export('svg')">
+      <app-icon name="shape" [size]="16" /><span class="grow">SVG vector</span>
+    </button>
+    <button class="menu-item" cdkMenuItem (cdkMenuItemTriggered)="actions.export('pdf')">
+      <app-icon name="file-text" [size]="16" /><span class="grow">PDF document</span>
+    </button>
+    <button class="menu-item" cdkMenuItem (cdkMenuItemTriggered)="actions.export('json')">
+      <app-icon name="file-json" [size]="16" /><span class="grow">Layout JSON</span
+      ><span class="hint">re-importable</span>
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #profileMenu>
+  <div class="menu" cdkMenu>
+    <div class="profile">
+      <span class="avatar static">S</span>
+      <span
+        ><strong>Sivakumar</strong><br /><span class="hint"
+          >Local profile · layouts stay in this browser</span
+        ></span
+      >
+    </div>
+  </div>
+</ng-template>
